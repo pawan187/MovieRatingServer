@@ -73,13 +73,17 @@ router
       res.status(401).send("Error in data storing");
     }
   })
-  .post("/comment", verifyToken, (req, res) => {
+  .post("/comment", verifyToken, async (req, res) => {
     try {
       var movieId = req.body.movieId;
       var userId = req.body.userId;
       var comment = req.body.comment;
       var rating = req.body.rating;
-      var username = req.body.username;
+      var username = "";
+      await userModel.findById(userId, (err, user) => {
+        username = user.full_name;
+        console.log(user.full_name, userId, movieId, comment);
+      });
       var newComment = new CommentModel({
         movieId,
         userId,
