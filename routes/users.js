@@ -1,24 +1,10 @@
 var express = require("express");
 var router = express.Router();
-var mongoose = require("mongoose");
 
-var db = require("../routes/database");
-// create an schema
-var userSchema = new mongoose.Schema(
-  {
-    full_name: String,
-    email: String,
-    password: String
-  },
-  {
-    collection: "users"
-  }
-);
-var model = mongoose.model("model", userSchema);
-
+var Model = require("../models/userModel");
 /* GET users listing. */
 router.get("/", function (req, res, next) {
-  model.find({}, function (err, result) {
+  Model.find({}, function (err, result) {
     if (err) throw err;
     if (result) {
       console.log(result);
@@ -36,7 +22,7 @@ router.post("/login", (req, res) => {
   var name = req.body.name;
   var email = req.body.username;
   var password = req.body.password;
-  var newUser = new model({
+  var newUser = new Model({
     email: email,
     password: password,
     full_name: name
