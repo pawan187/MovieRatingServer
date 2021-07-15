@@ -1,6 +1,8 @@
 var express = require("express");
 var router = express.Router();
 
+var { verifyAdminToken, verifyToken } = require("../middlewares/auth");
+
 var mongoose = require("mongoose");
 
 var db = require("../routes/database");
@@ -34,46 +36,62 @@ var MovieSchema = new mongoose.Schema(
 var Model = mongoose.model("MovieModel", MovieSchema);
 /* GET home page. */
 router
-  .get("/movies", function (req, res, next) {
-    console.log("Movies route");
-    Model.find({}, (err, data) => {
-      res.json(data);
-    });
+  .get("/movies", async function (req, res, next) {
+    try {
+      console.log("Movies route");
+      Model.find({}, (err, data) => {
+        res.json(data);
+      });
+    } catch {
+      res.status(401).send("Error in data retrieval");
+    }
   })
   .get("/movie/:id", (req, res) => {
-    var id = req.params.id;
-    Model.find({ _id: id }, (err, data) => {
-      CommentModel.find({ movieId: id }, (err, comments) => {
-        data = { ...data, comments };
-        console.log(data);
-        res.send(data);
+    try {
+      var id = req.params.id;
+      Model.find({ _id: id }, (err, data) => {
+        CommentModel.find({ movieId: id }, (err, comments) => {
+          data = { ...data, comments };
+          console.log(data);
+          res.send(data);
+        });
       });
-    });
+    } catch {
+      res.status(401).send("Error in data retrieval");
+    }
   })
-  .post("/movie", (req, res) => {
-    var name = req.body.name;
-    var description = req.body.description;
-    var newMovie = new Model({ name: name, description: description });
-    newMovie.save((err, data) => {
-      res.send(data.name + " is added");
-    });
-    console.log("added" + newMovie);
+  .post("/movie", verifyAdminToken, (req, res) => {
+    try {
+      var name = req.body.name;
+      var description = req.body.description;
+      var newMovie = new Model({ name: name, description: description });
+      newMovie.save((err, data) => {
+        res.send(data.name + " is added");
+      });
+      console.log("added" + newMovie);
+    } catch {
+      res.status(401).send("Error in data storing");
+    }
   })
-  .post("/comment", (req, res) => {
-    var movieId = req.body.movieId;
-    var userId = req.body.userId;
-    var comment = req.body.comment;
-    var rating = req.body.rating;
-    var username = req.body.username;
-    var newComment = new CommentModel({
-      movieId,
-      userId,
-      comment,
-      rating,
-      username
-    });
-    newComment.save((err, data) => {
-      res.send("added" + data);
-    });
+  .post("/comment", verifyToken, (req, res) => {
+    try {
+      var movieId = req.body.movieId;
+      var userId = req.body.userId;
+      var comment = req.body.comment;
+      var rating = req.body.rating;
+      var username = req.body.username;
+      var newComment = new CommentModel({
+        movieId,
+        userId,
+        comment,
+        rating,
+        username
+      });
+      newComment.save((err, data) => {
+        res.send("added" + data);
+      });
+    } catch {
+      res.status(401).send("Error in comment storing");
+    }
   });
 module.exports = router;
