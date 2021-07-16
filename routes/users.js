@@ -25,22 +25,37 @@ router
   })
 
   .post("/login", async (req, res) => {
-    var username = req.body.username;
-    var password = req.body.password;
-    if (!(username && password)) {
-      res.status(400).send("All input is required");
-    }
-    // var encryptedPassword = await bcrypt.hash(password, 10);
+    try {
+      var username = req.body.username;
+      var password = req.body.password;
+      if (!(username && password)) {
+        res.status(400).send("All input is required");
+      }
+      // var encryptedPassword = await bcrypt.hash(password, 10);
 
-    const User = await Model.findOne({ email: username });
+      const User = await Model.findOne({ email: username });
 
-    if (User && (await bcrypt.compare(password, User.password))) {
-      const token = await jwt.sign({ user_id: User._id, username }, "secret", {
-        expiresIn: "2h"
-      });
-      return res.status(200).json({ User, token });
-    } else {
-      res.status(400).send("No username");
+      if (User && (await bcrypt.compare(password, User.password))) {
+        const token = await jwt.sign(
+          { user_id: User._id, username },
+          "secret",
+          {
+            expiresIn: "2h"
+          }
+        );
+        return res
+          .status(200)
+          .json({
+            full_name: User.full_name,
+            email: User.email,
+            id: User._id,
+            token
+          });
+      } else {
+        res.status(400).send("No username");
+      }
+    } catch {
+      res.status(400).send("Login error");
     }
     console.log(username, password);
   });
