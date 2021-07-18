@@ -4,7 +4,7 @@ var bcrypt = require("bcryptjs");
 var Model = require("../models/userModel");
 var jwt = require("jsonwebtoken");
 
-var { verifyToken } = require("../middlewares/auth");
+var { verifyToken, verifyAdminToken } = require("../middlewares/auth");
 
 /* GET users listing. */
 router
@@ -43,14 +43,12 @@ router
             expiresIn: "2h"
           }
         );
-        return res
-          .status(200)
-          .json({
-            full_name: User.full_name,
-            email: User.email,
-            id: User._id,
-            token
-          });
+        return res.status(200).json({
+          full_name: User.full_name,
+          email: User.email,
+          id: User._id,
+          token
+        });
       } else {
         res.status(400).send("No username");
       }
@@ -59,7 +57,9 @@ router
     }
     console.log(username, password);
   });
-
+router.get("/verifyAdmin", verifyAdminToken, (req, res) => {
+  res.send("admin");
+});
 router.post("/Register", async (req, res) => {
   var name = req.body.name;
   var email = req.body.email;
@@ -91,4 +91,11 @@ router.post("/Register", async (req, res) => {
     console.log(newUser);
   });
 });
+
+// router.get("/logout", (req, res) => {
+//   const token = req.body.token;
+//   console.log(token);
+//   jwt.destroy(token);
+//   res.status(200).json("logout");
+// });
 module.exports = router;

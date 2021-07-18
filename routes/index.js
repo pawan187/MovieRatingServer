@@ -66,7 +66,7 @@ router
       var description = req.body.description;
       var newMovie = new Model({ name: name, description: description });
       newMovie.save((err, data) => {
-        res.send(data.name + " is added");
+        res.status(200).send(data);
       });
       console.log("added" + newMovie);
     } catch {
@@ -92,7 +92,7 @@ router
         username
       });
       newComment.save((err, data) => {
-        res.send("added" + data);
+        res.send(data);
       });
     } catch {
       res.status(401).send("Error in comment storing");
