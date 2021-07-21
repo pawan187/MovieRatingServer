@@ -98,4 +98,10 @@ router
       res.status(401).send("Error in comment storing");
     }
   });
+router.get("/userDetails/:id", verifyToken, (req, res) => {
+  let userId = req.params.id;
+  CommentModel.find({ userId: userId }, (err, comments) => {
+    res.send(comments);
+  });
+});
 module.exports = router;
