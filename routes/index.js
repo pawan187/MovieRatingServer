@@ -53,7 +53,7 @@ router
         CommentModel.find({ movieId: id }, (err, comments) => {
           data = { ...data, comments };
           console.log(data);
-          res.send(data);
+          res.json(data);
         });
       });
     } catch {

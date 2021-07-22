@@ -87,7 +87,12 @@ router.post("/Register", async (req, res) => {
     const token = await jwt.sign({ user_id: user._id, email }, "secret", {
       expiresIn: "2h"
     });
-    res.json({ newUser, token });
+    res.json({
+      full_name: newUser.full_name,
+      email: newUser.email,
+      id: newUser._id,
+      token
+    });
     console.log(newUser);
   });
 });
